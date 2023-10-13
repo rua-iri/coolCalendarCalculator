@@ -14,10 +14,12 @@ print(TOKEN)
 print(BOT_USERNAME)
 
 
+# set up logging for bot
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
+
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -54,7 +56,7 @@ async def dateDiff(update: Update, context: ContextTypes.DEFAULT_TYPE):
 rf"""
 Okay {user},
 
-Get Difference between two dates
+Get number of days between today and another date
 
 Enter your chosen date (format dd/mm/yyyy)
 
@@ -67,10 +69,16 @@ Enter your chosen date (format dd/mm/yyyy)
 async def get_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
     userDate = update.message.text
 
+    userDateParsed = datetime.strptime(userDate, "%d/%m/%Y")
+    todayDate = datetime.now()
+
+    dayDiff = abs(todayDate - userDateParsed).days
+
     await update.message.reply_html(
 rf"""
-Get Difference between two dates
-{userDate}
+There are 
+{dayDiff}
+days between today and your date
 """)
 
     return ConversationHandler.END
@@ -84,9 +92,12 @@ def cancel():
 
 
 
-
+# TODO just for testing, remove this eventually
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(update.message.text)
+
+
+
 
 
 def main() -> None:
@@ -97,7 +108,7 @@ def main() -> None:
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('help', help))
 
-    # handler for
+    # handler for date difference
     app.add_handler(ConversationHandler(
             entry_points=[CommandHandler("diff", dateDiff)],
             states={
