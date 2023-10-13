@@ -2,8 +2,9 @@ import typing
 import logging
 import os
 import dotenv
+from datetime import datetime
 from telegram import Update, ForceReply
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
 
 dotenv.load_dotenv()
 TOKEN: typing.Final = os.getenv("TOKEN")
@@ -36,16 +37,50 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 r"""
 Here are the functions I'm currently capable of performing:
 
-/help
+/help - The command you've just run
 
-/diff
+/diff - Get the difference between two dates
 """)
+
+
 
 async def dateDiff(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+
+    # user = update.message.from_user
+    # user.get("username")
+
     await update.message.reply_html(
-r"""
+rf"""
+Okay {user},
+
 Get Difference between two dates
+
+Enter your chosen date (format dd/mm/yyyy)
+
 """)
+    
+    return 1
+    
+
+
+async def get_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    userDate = update.message.text
+
+    await update.message.reply_html(
+rf"""
+Get Difference between two dates
+{userDate}
+""")
+
+    return ConversationHandler.END
+
+
+
+
+def cancel():
+    pass
+
 
 
 
@@ -55,10 +90,21 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main() -> None:
+    # build the bot
     app = Application.builder().token(TOKEN).build()
+
+    # handle commands
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('help', help))
-    app.add_handler(CommandHandler('diff', dateDiff))
+
+    # handler for
+    app.add_handler(ConversationHandler(
+            entry_points=[CommandHandler("diff", dateDiff)],
+            states={
+                1: [MessageHandler(filters.TEXT, get_date)],
+            }, 
+            fallbacks=[CommandHandler("cancel", cancel)]
+            ))
     
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
