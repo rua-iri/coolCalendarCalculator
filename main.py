@@ -1,4 +1,5 @@
 import typing
+import constants
 import logging
 import os
 import dotenv
@@ -8,10 +9,8 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 dotenv.load_dotenv()
 TOKEN: typing.Final = os.getenv("TOKEN")
-BOT_USERNAME = os.getenv("BOT_USERNAME")
 
 print(TOKEN)
-print(BOT_USERNAME)
 
 
 # set up logging for bot
@@ -23,26 +22,13 @@ logging.basicConfig(
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print(context.bot.username)
     user = update.effective_user
-    await update.message.reply_html(
-rf"""
-Hello, {user.mention_html()}
-I'm {BOT_USERNAME}
-I can do some fun stuff
-
-Type /help to find out more!
-""")
+    await update.message.reply_html(constants.startHtml.format(username=user.mention_html(), botname=context.bot.username))
 
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_html(
-r"""
-Here are the functions I'm currently capable of performing:
-
-/help - The command you've just run
-
-/diff - Get the difference between two dates
-""")
+    await update.message.reply_html(constants.helpHtml)
 
 
 
@@ -52,17 +38,7 @@ async def dateDiff(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # user = update.message.from_user
     # user.get("username")
 
-    await update.message.reply_html(
-rf"""
-Okay {user},
-
-Get number of days between today and another date
-
-Enter your chosen date(s) (format dd/mm/yyyy)
-
-If only one date is given then the difference will be calculated from today
-
-""")
+    await update.message.reply_html(constants.diffHtml)
     
     return 1
     
@@ -82,12 +58,7 @@ async def get_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             dayDiff = abs(todayDate - userDateParsed).days
 
-            await update.message.reply_html(
-rf"""
-There are 
-{dayDiff}
-days between today and your date
-""")
+            await update.message.reply_html(constants.singleDateDiff.format(dayDiff=dayDiff))
             
 
 
@@ -97,29 +68,16 @@ days between today and your date
 
             dayDiff = abs(firstUserDateParsed - secondUserDateParsed).days
 
-            await update.message.reply_html(
-rf"""
-There are 
-{dayDiff}
-days between {userDates[0]} and {userDates[1]}
-""")
+            await update.message.reply_html(constants.dualDateDiff.format(dateOne=userDates[0], dateTwo=userDates[1], dayDiff=dayDiff))
 
 
         else: 
-            await update.message.reply_markdown(
-            rf"""
-*Error*: Please enter 1-2 dates separated by a space
-            """
-        )
+            await update.message.reply_markdown(constants.errorDateDiffNumArgs)
             
 
         
     except ValueError:
-        await update.message.reply_markdown(
-            rf"""
-*Error*: Please enter your date(s) in the format dd/mm/yyyy
-            """
-        )
+        await update.message.reply_markdown(constants.errorDateDiffValueError)
 
 
     return ConversationHandler.END
