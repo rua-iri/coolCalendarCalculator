@@ -58,7 +58,9 @@ Okay {user},
 
 Get number of days between today and another date
 
-Enter your chosen date (format dd/mm/yyyy)
+Enter your chosen date(s) (format dd/mm/yyyy)
+
+If only one date is given then the difference will be calculated from today
 
 """)
     
@@ -67,19 +69,29 @@ Enter your chosen date (format dd/mm/yyyy)
 
 
 async def get_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    userDate = update.message.text
 
-    userDateParsed = datetime.strptime(userDate, "%d/%m/%Y")
-    todayDate = datetime.now()
+    try:
+        userDate = update.message.text
 
-    dayDiff = abs(todayDate - userDateParsed).days
+        userDateParsed = datetime.strptime(userDate, "%d/%m/%Y")
+        todayDate = datetime.now()
 
-    await update.message.reply_html(
+        dayDiff = abs(todayDate - userDateParsed).days
+
+        await update.message.reply_html(
 rf"""
 There are 
 {dayDiff}
 days between today and your date
 """)
+        
+    except ValueError:
+        await update.message.reply_markdown(
+            rf"""
+*Error*: Please enter your date(s) in the format dd/mm/yyyy
+            """
+        )
+
 
     return ConversationHandler.END
 
