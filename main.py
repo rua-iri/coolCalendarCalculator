@@ -68,22 +68,51 @@ If only one date is given then the difference will be calculated from today
     
 
 
+
+
 async def get_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
-        userDate = update.message.text
+        userDates = update.message.text.split(" ")
 
-        userDateParsed = datetime.strptime(userDate, "%d/%m/%Y")
-        todayDate = datetime.now()
+        if len(userDates)==1:
 
-        dayDiff = abs(todayDate - userDateParsed).days
+            userDateParsed = datetime.strptime(userDates[0], "%d/%m/%Y")
+            todayDate = datetime.now()
 
-        await update.message.reply_html(
+            dayDiff = abs(todayDate - userDateParsed).days
+
+            await update.message.reply_html(
 rf"""
 There are 
 {dayDiff}
 days between today and your date
 """)
+            
+
+
+        elif len(userDates)==2:
+            firstUserDateParsed = datetime.strptime(userDates[0], "%d/%m/%Y")
+            secondUserDateParsed = datetime.strptime(userDates[1], "%d/%m/%Y")
+
+            dayDiff = abs(firstUserDateParsed - secondUserDateParsed).days
+
+            await update.message.reply_html(
+rf"""
+There are 
+{dayDiff}
+days between {userDates[0]} and {userDates[1]}
+""")
+
+
+        else: 
+            await update.message.reply_markdown(
+            rf"""
+*Error*: Please enter 1-2 dates separated by a space
+            """
+        )
+            
+
         
     except ValueError:
         await update.message.reply_markdown(
