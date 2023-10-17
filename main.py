@@ -25,7 +25,6 @@ logging.basicConfig(
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print(context.bot.username)
     user = update.effective_user
     await update.message.reply_html(constants.startHtml.format(
         username=user.mention_html(),
@@ -112,21 +111,15 @@ async def onThisDay(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     photoCaption += data['selected'][selectedIndex]['text']
 
-    print(len(data['selected']))
-
     await update.message.reply_photo(
         photo=data['selected'][selectedIndex].get('pages')[0]
         .get('thumbnail').get('source'),
         caption=photoCaption
         )
 
-    # await update.message.reply_html(
-    #     constants.onDayResponse.format(
-    #         textContent=data['selected'][selectedIndex]['text'],
-    #         imgSrc=data['selected'][selectedIndex].get('pages')[0]
-    #         .get('thumbnail').get('source')
-    #         )
-    #     )
+
+def getHijriDate():
+    pass
 
 
 def main() -> None:
