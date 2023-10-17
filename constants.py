@@ -56,3 +56,9 @@ errorDateDiffNumArgs = """
 errorDateDiffValueError = """
 *Error*: Please enter your date(s) in the format dd/mm/yyyy
 """
+
+
+onDayResponse = """"
+{textContent}
+<img src={imgSrc} />
+"""

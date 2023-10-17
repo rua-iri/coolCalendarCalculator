@@ -1,4 +1,7 @@
+import json
 import typing
+import random
+import requests
 import constants
 import logging
 import os
@@ -89,6 +92,43 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(update.message.text)
 
 
+async def onThisDay(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    baseUrl = "https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/selected/"
+    msgData = update.message.text.split(" ")
+
+    # check if user has provided date
+    if (len(msgData) > 1):
+        requestDate = msgData[1]
+    else:
+        requestDate = datetime.strftime(datetime.now(), "%m/%d")
+
+    response = requests.get(baseUrl + requestDate)
+    data = json.loads(response.text)
+
+    selectedIndex = random.randint(0, len(data['selected']))
+    photoCaption = "{date}/{year}\n\n".format(
+        date=requestDate,
+        year=data['selected'][selectedIndex]['year']
+        )
+    photoCaption += data['selected'][selectedIndex]['text']
+
+    print(len(data['selected']))
+
+    await update.message.reply_photo(
+        photo=data['selected'][selectedIndex].get('pages')[0]
+        .get('thumbnail').get('source'),
+        caption=photoCaption
+        )
+
+    # await update.message.reply_html(
+    #     constants.onDayResponse.format(
+    #         textContent=data['selected'][selectedIndex]['text'],
+    #         imgSrc=data['selected'][selectedIndex].get('pages')[0]
+    #         .get('thumbnail').get('source')
+    #         )
+    #     )
+
+
 def main() -> None:
     # build the bot
     app = Application.builder().token(TOKEN).build()
@@ -96,13 +136,14 @@ def main() -> None:
     # handle commands
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('help', help))
+    app.add_handler(CommandHandler('onday', onThisDay))
 
     # handler for date difference
     app.add_handler(ConversationHandler(
             entry_points=[CommandHandler("diff", dateDiff)],
             states={
                 1: [MessageHandler(filters.TEXT, get_date)],
-            }, 
+            },
             fallbacks=[CommandHandler("cancel", cancel)]
             ))
 
@@ -113,6 +154,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-
