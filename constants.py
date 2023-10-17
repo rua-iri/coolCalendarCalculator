@@ -1,8 +1,5 @@
 
 
-
-
-
 # constants to be returned to the user
 
 startHtml = """
@@ -14,7 +11,6 @@ Type /help to find out more!
 """
 
 
-
 helpHtml = r"""
 Here are the functions I'm currently capable of performing:
 
@@ -24,7 +20,6 @@ Here are the functions I'm currently capable of performing:
 
 /onday - Get a notable event that has occurred on this day
 """
-
 
 
 diffHtml = """
@@ -40,14 +35,14 @@ If only one date is given then the difference will be calculated from today
 
 
 singleDateDiff = """
-There are 
+There are
 {dayDiff}
 days between today and your date
 """
 
 
 dualDateDiff = """
-There are 
+There are
 {dayDiff}
 days between {dateOne} and {dateTwo}
 """
@@ -61,5 +56,3 @@ errorDateDiffNumArgs = """
 errorDateDiffValueError = """
 *Error*: Please enter your date(s) in the format dd/mm/yyyy
 """
-
-

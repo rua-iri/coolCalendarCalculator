@@ -4,8 +4,9 @@ import logging
 import os
 import dotenv
 from datetime import datetime
-from telegram import Update, ForceReply
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
+from telegram import Update
+from telegram.ext import (Application, CommandHandler, MessageHandler,
+                          filters, ContextTypes, ConversationHandler)
 
 dotenv.load_dotenv()
 TOKEN: typing.Final = os.getenv("TOKEN")
@@ -20,16 +21,16 @@ logging.basicConfig(
 )
 
 
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(context.bot.username)
     user = update.effective_user
-    await update.message.reply_html(constants.startHtml.format(username=user.mention_html(), botname=context.bot.username))
+    await update.message.reply_html(constants.startHtml.format(
+        username=user.mention_html(),
+        botname=context.bot.username))
 
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_html(constants.helpHtml)
-
 
 
 async def dateDiff(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -38,12 +39,9 @@ async def dateDiff(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # user = update.message.from_user
     # user.get("username")
 
-    await update.message.reply_html(constants.diffHtml)
-    
+    await update.message.reply_html(constants.diffHtml.format(user=user))
+
     return 1
-    
-
-
 
 
 async def get_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -51,52 +49,44 @@ async def get_date(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         userDates = update.message.text.split(" ")
 
-        if len(userDates)==1:
+        if len(userDates) == 1:
 
             userDateParsed = datetime.strptime(userDates[0], "%d/%m/%Y")
             todayDate = datetime.now()
 
             dayDiff = abs(todayDate - userDateParsed).days
 
-            await update.message.reply_html(constants.singleDateDiff.format(dayDiff=dayDiff))
-            
+            await update.message.reply_html(constants.singleDateDiff.format(
+                dayDiff=dayDiff
+                ))
 
-
-        elif len(userDates)==2:
+        elif len(userDates) == 2:
             firstUserDateParsed = datetime.strptime(userDates[0], "%d/%m/%Y")
             secondUserDateParsed = datetime.strptime(userDates[1], "%d/%m/%Y")
 
             dayDiff = abs(firstUserDateParsed - secondUserDateParsed).days
 
-            await update.message.reply_html(constants.dualDateDiff.format(dateOne=userDates[0], dateTwo=userDates[1], dayDiff=dayDiff))
+            await update.message.reply_html(constants.dualDateDiff.format(
+                dateOne=userDates[0],
+                dateTwo=userDates[1],
+                dayDiff=dayDiff))
 
-
-        else: 
+        else:
             await update.message.reply_markdown(constants.errorDateDiffNumArgs)
-            
 
-        
     except ValueError:
         await update.message.reply_markdown(constants.errorDateDiffValueError)
 
-
     return ConversationHandler.END
-
-
 
 
 def cancel():
     pass
 
 
-
-
 # TODO just for testing, remove this eventually
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(update.message.text)
-
-
-
 
 
 def main() -> None:
@@ -115,11 +105,10 @@ def main() -> None:
             }, 
             fallbacks=[CommandHandler("cancel", cancel)]
             ))
-    
+
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
     app.run_polling(allowed_updates=Update.ALL_TYPES)
-
 
 
 if __name__ == "__main__":
